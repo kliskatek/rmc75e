@@ -16,13 +16,13 @@ IS_LINUX = sys.platform.startswith("linux")
 
 
 def get_project_version():
-    """Read the project version from pyproject.toml."""
-    pyproject = Path.cwd() / "pyproject.toml"
-    with open(pyproject) as f:
+    """Read the project version from src/rmc75e/__about__.py."""
+    about_file = Path.cwd() / "src" / "rmc75e" / "__about__.py"
+    with open(about_file) as f:
         for line in f:
-            if line.strip().startswith("version"):
+            if line.startswith("__version__"):
                 return line.split("=")[1].strip().strip('"').strip("'")
-    raise RuntimeError("Version not found in pyproject.toml")
+    raise RuntimeError("Version not found in src/rmc75e/__about__.py")
 
 
 class BuildConfig:

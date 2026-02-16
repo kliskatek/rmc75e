@@ -8,6 +8,8 @@ import os
 import sys
 from pathlib import Path
 
+from rmc75e.__about__ import __version__
+
 # Add lib directory to library search path
 _lib_dir = Path(__file__).parent / "lib"
 if _lib_dir.exists():
@@ -27,14 +29,20 @@ try:
     _module_dir = Path(__file__).parent
 
     # Find the compiled module (.so on Linux, .pyd on Windows)
-    _patterns = ["rmc75e*.pyd", "rmc75e*.so"] if sys.platform == 'win32' \
-        else ["rmc75e*.so"]
+    # The file is named rmc75e.cpython-3XX-ARCH.so (or .pyd on Windows)
+    if sys.platform == 'win32':
+        _patterns = ["rmc75e.cpython-*.pyd", "rmc75e*.pyd",
+                      "rmc75e.cpython-*.so", "rmc75e*.so"]
+    else:
+        _patterns = ["rmc75e.cpython-*.so", "rmc75e*.so"]
 
     _found = False
     for _pattern in _patterns:
         for _ext_file in _module_dir.glob(_pattern):
-            if _ext_file.is_file() and _ext_file.stem != "__init__":
-                spec = importlib.util.spec_from_file_location("rmc75e", _ext_file)
+            if _ext_file.is_file():
+                # Use a distinct name to avoid conflict with this package
+                spec = importlib.util.spec_from_file_location(
+                    "_rmc75e_native", _ext_file)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
@@ -46,15 +54,12 @@ try:
 
     if not _found:
         ext = ".pyd/.so" if sys.platform == 'win32' else ".so"
-        raise ImportError(f"Compiled rmc75e module not found ({ext})")
+        _files = [f.name for f in _module_dir.iterdir() if f.is_file()]
+        raise ImportError(
+            f"Compiled rmc75e native module not found ({ext}) "
+            f"in {_module_dir}. Files present: {_files}")
 
 except ImportError as e:
     raise ImportError(f"Error loading rmc75e module: {e}")
 
-from importlib.metadata import version as _get_version, PackageNotFoundError
-try:
-    __version__ = _get_version("rmc75e")
-except PackageNotFoundError:
-    __version__ = "0.0.0"  # Not installed as a package (dev mode)
-
-__all__ = ["RMC75EClient"]
+__all__ = ["RMC75EClient", "__version__"]

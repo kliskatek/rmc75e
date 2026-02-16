@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rmc75e"
-version = "0.1.0"
+dynamic = ["version"]
 description = "EtherNet/IP explicit messaging client for Delta RMC75E motion controllers"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -43,6 +43,9 @@ Homepage = "https://github.com/kliskatek/rmc75e"
 Documentation = "https://github.com/kliskatek/rmc75e/blob/main/README.md"
 Repository = "https://github.com/kliskatek/rmc75e"
 
+[tool.hatch.version]
+path = "src/rmc75e/__about__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/rmc75e"]
 
@@ -60,6 +63,11 @@ artifacts = [
 [tool.cibuildwheel]
 build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
 skip = "*-musllinux*"
+# Use "build" frontend instead of "pip" so it builds in-tree
+# and hatch's artifacts setting picks up the compiled .so/.pyd files.
+# With pip, the source is copied to a temp dir (respecting .gitignore),
+# so the .so built by before-build is lost.
+build-frontend = "build"
 
 # Build EIPScanner once per platform (shared across Python versions)
 before-all = [
@@ -78,13 +86,20 @@ archs = ["x86_64", "aarch64"]
 manylinux-x86_64-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
 before-all = [
-    "rm -rf build/",
+    "rm -rf build/ src/rmc75e/lib/ src/rmc75e/rmc75e*.so src/rmc75e/rmc75e*.pyd",
     "pip install pybind11",
     "python scripts/build_eipscanner.py",
 ]
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
+before-all = [
+    "if exist build rmdir /s /q build",
+    "if exist src\\rmc75e\\lib rmdir /s /q src\\rmc75e\\lib",
+    "del /q src\\rmc75e\\rmc75e*.pyd src\\rmc75e\\rmc75e*.so 2>nul || echo clean",
+    "pip install pybind11",
+    "python scripts/build_eipscanner.py",
+]
 
 [tool.black]
 line-length = 100
