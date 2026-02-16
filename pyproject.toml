@@ -1,0 +1,95 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rmc75e"
+version = "0.1.0"
+description = "EtherNet/IP explicit messaging client for Delta RMC75E motion controllers"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+authors = [
+    {name = "Ibon Zalbide", email = "ibon.zalbide@kliskatek.com"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: C++",
+    "Topic :: Software Development :: Libraries",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=22.0",
+    "ruff>=0.0.243",
+]
+publish = [
+    "twine>=4.0",
+    "hatch>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kliskatek/rmc75e"
+Documentation = "https://github.com/kliskatek/rmc75e/blob/main/README.md"
+Repository = "https://github.com/kliskatek/rmc75e"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rmc75e"]
+
+[tool.hatch.build]
+artifacts = [
+    "src/rmc75e/rmc75e_binding*.so",
+    "src/rmc75e/rmc75e_binding*.pyd",
+    "src/rmc75e/lib/*.so*",
+    "src/rmc75e/lib/*.dll",
+]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+# Uses hatch_build.py to force platform-specific wheel tags
+
+[tool.cibuildwheel]
+build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux*"
+
+# Build EIPScanner once per platform (shared across Python versions)
+before-all = [
+    "pip install pybind11",
+    "python scripts/build_eipscanner.py",
+]
+
+# Build the pybind11 binding for each Python version
+before-build = [
+    "pip install pybind11",
+    "python scripts/build_binding.py",
+]
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
+manylinux-x86_64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+before-all = [
+    "rm -rf build/",
+    "pip install pybind11",
+    "python scripts/build_eipscanner.py",
+]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+[tool.black]
+line-length = 100
+target-version = ['py37']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N"]
