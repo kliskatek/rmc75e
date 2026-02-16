@@ -18,7 +18,7 @@ def _build_binding_gcc(cfg, eip_include, ext_suffix):
     python_include = sysconfig.get_path('include')
     pybind_include = pybind11.get_include()
 
-    output_name = cfg.src_dir / f"rmc75e_binding{ext_suffix}"
+    output_name = cfg.src_dir / f"rmc75e{ext_suffix}"
 
     print(f"Python include: {python_include}")
     print(f"pybind11 include: {pybind_include}")
@@ -103,16 +103,16 @@ def _build_binding_cmake(cfg, eip_include):
     # Verify output
     import sysconfig
     ext_suffix = sysconfig.get_config_var('EXT_SUFFIX')
-    expected_output = cfg.src_dir / f"rmc75e_binding{ext_suffix}"
+    expected_output = cfg.src_dir / f"rmc75e{ext_suffix}"
 
     if not expected_output.exists():
         # On Windows, pybind11 may produce the file with .pyd extension
-        pyd_files = list(cfg.src_dir.glob("rmc75e_binding*.pyd"))
+        pyd_files = list(cfg.src_dir.glob("rmc75e*.pyd"))
         if pyd_files:
             print(f"OK Binding compiled: {pyd_files[0].name}")
         else:
             print("Searching for output in build dir...")
-            for item in binding_build_dir.rglob("rmc75e_binding*"):
+            for item in binding_build_dir.rglob("rmc75e*"):
                 print(f"  Found: {item}")
             raise RuntimeError("Compiled binding not found")
     else:
@@ -141,7 +141,7 @@ def build_binding(cfg=None):
 
     # Remove any previously compiled binding (avoids Python version mismatch
     # when cibuildwheel reuses the same tree for multiple Python versions)
-    for old in cfg.src_dir.glob("rmc75e_binding*"):
+    for old in cfg.src_dir.glob("rmc75e*"):
         if old.suffix in (".so", ".pyd") or ".cpython-" in old.name:
             print(f"  Removing old binding: {old.name}")
             old.unlink()

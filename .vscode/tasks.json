@@ -57,7 +57,7 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "python -c \"import shutil, pathlib; shutil.rmtree('build', ignore_errors=True); [f.unlink() for f in pathlib.Path('src/rmc75e').glob('rmc75e_binding*') if f.is_file()]\"",
+            "command": "python -c \"import shutil, pathlib; shutil.rmtree('build', ignore_errors=True); [f.unlink() for f in pathlib.Path('src/rmc75e').glob('rmc75e.*cpython*') if f.is_file()]\"",
             "options": {
                 "cwd": "${workspaceFolder}"
             },

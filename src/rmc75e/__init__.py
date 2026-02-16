@@ -27,14 +27,14 @@ try:
     _module_dir = Path(__file__).parent
 
     # Find the compiled module (.so on Linux, .pyd on Windows)
-    _patterns = ["rmc75e_binding*.pyd", "rmc75e_binding*.so"] if sys.platform == 'win32' \
-        else ["rmc75e_binding*.so"]
+    _patterns = ["rmc75e*.pyd", "rmc75e*.so"] if sys.platform == 'win32' \
+        else ["rmc75e*.so"]
 
     _found = False
     for _pattern in _patterns:
         for _ext_file in _module_dir.glob(_pattern):
-            if _ext_file.is_file():
-                spec = importlib.util.spec_from_file_location("rmc75e_binding", _ext_file)
+            if _ext_file.is_file() and _ext_file.stem != "__init__":
+                spec = importlib.util.spec_from_file_location("rmc75e", _ext_file)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
@@ -46,7 +46,7 @@ try:
 
     if not _found:
         ext = ".pyd/.so" if sys.platform == 'win32' else ".so"
-        raise ImportError(f"Compiled rmc75e_binding module not found ({ext})")
+        raise ImportError(f"Compiled rmc75e module not found ({ext})")
 
 except ImportError as e:
     raise ImportError(f"Error loading rmc75e module: {e}")

@@ -48,8 +48,8 @@ packages = ["src/rmc75e"]
 
 [tool.hatch.build]
 artifacts = [
-    "src/rmc75e/rmc75e_binding*.so",
-    "src/rmc75e/rmc75e_binding*.pyd",
+    "src/rmc75e/rmc75e*.so",
+    "src/rmc75e/rmc75e*.pyd",
     "src/rmc75e/lib/*.so*",
     "src/rmc75e/lib/*.dll",
 ]

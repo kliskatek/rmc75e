@@ -16,7 +16,7 @@ using namespace rmc75e;
 #define RMC75E_VERSION "0.0.0"
 #endif
 
-PYBIND11_MODULE(rmc75e_binding, m) {
+PYBIND11_MODULE(rmc75e, m) {
     m.doc() = "EtherNet/IP explicit messaging client for Delta RMC75E motion controllers";
 
     py::class_<RMC75EClient>(m, "RMC75EClient",
